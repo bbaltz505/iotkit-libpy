@@ -4,13 +4,13 @@ import time
 import math
 
 # Authentication/Account info
-username = "bbaltz@yahoo.com"
+username = "bbaltz505@yopmail.com"
 password = "Passw0rd"
 hostname = "dashboard.us.enableiot.com"
-account_name = "Brian Baltz"
+account_name = "yop"
 
 # Device/component info
-device_id = "foobie3"
+device_id = "foobie2"
 device_name = device_id + "-Device"
 component_name = "response"
 
