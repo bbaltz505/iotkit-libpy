@@ -1,0 +1,1 @@
+g_verify       = True # whether to verify certs
