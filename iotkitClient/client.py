@@ -1,7 +1,17 @@
+"""@package Client
+Methods for IoT Analytics Cloud connections
+"""
 from utils import *
 from globals import *
 import json
 import requests
+
+## Connection object for user session
+#
+# @param host
+# @param username
+# @param password
+# @param proxies
 
 class Client: 
     proxies     = ''
@@ -45,4 +55,15 @@ class Client:
         check(resp, 200)
         js = resp.json()
         return js
+        
+    # Re-initialize to get new token (use after creating a new account)
+    def reinit(self, username, password):        
+        url = "{0}/auth/token".format(self.base_url)    
+        headers = {'content-type': 'application/json'}
+        payload = {"username": username, "password": password}
+        data = json.dumps(payload)
+        resp = requests.post(url, data=data, headers=headers, proxies=self.proxies, verify=g_verify)
+        check(resp, 200)
+        js = resp.json()
+        self.user_token = js['token'] 
         

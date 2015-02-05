@@ -1,3 +1,6 @@
+"""@package Account
+Methods for IoT Analytics account management
+"""
 from globals import *
 from utils import *
 import requests
@@ -45,7 +48,7 @@ class Account:
         else:
             raise ValueError("No account name given.")
         
-    def getAccountInfo(self):
+    def getInfo(self):
         url = "{0}/accounts/{1}".format(self.client.base_url, self.id)
         resp = requests.get(url, headers=get_user_headers(self.client.user_token), proxies=self.client.proxies, verify=g_verify)
         check(resp, 200)

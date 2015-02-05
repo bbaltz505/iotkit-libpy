@@ -27,5 +27,5 @@ def get_device_headers(device_token):
     return headers 
 
 def prettyprint(js):
-    return json.dumps(js, sort_keys=True, indent=4, separators=(',', ': '))
+    print json.dumps(js, sort_keys=True, indent=4, separators=(',', ': '))
     

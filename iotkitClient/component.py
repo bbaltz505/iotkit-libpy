@@ -1,6 +1,7 @@
 from globals import *
 from utils import *
 import requests
+import uuid
 import json
 
 class Component:
@@ -26,7 +27,8 @@ class Component:
                         return c
         return None
             
-    def addComponent(self, cid, name, type):
+    def addComponent(self, name, type):
+        cid = str(uuid.uuid4())
         payload = { 
             "cid": cid,
             "name": name,
