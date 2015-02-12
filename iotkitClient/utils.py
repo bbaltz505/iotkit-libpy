@@ -3,8 +3,7 @@ import json
 
 def check(resp, code):
     if resp.status_code != code:
-        print "Expected {0}. Got {1} {2}".format(code, resp.status_code, resp.text)
-        sys.exit(1)
+        raise RuntimeError("Expected {0}. Got {1} {2}".format(code, resp.status_code, resp.text))
         
 def get_auth_headers():
     headers = {

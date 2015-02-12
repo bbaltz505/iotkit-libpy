@@ -2,7 +2,7 @@
 Methods for IoT Analytics Cloud connections
 """
 from utils import *
-from globals import *
+import globals
 import json
 import requests
 
@@ -22,47 +22,65 @@ class Client:
     def __init__(self, host, username, password, proxies=None):
         if not host or not username or not password:
             raise ValueError("Invalid parameter: Client(host, username, password, [proxies])")
-        
-        self.proxies = proxies
-        api_root = "/v1/api"
-        self.base_url = "https://{0}{1}".format(host, api_root)
-        url = "{0}/auth/token".format(self.base_url)    
-        headers = {'content-type': 'application/json'}
-        payload = {"username": username, "password": password}
-        data = json.dumps(payload)
-        resp = requests.post(url, data=data, headers=headers, proxies=self.proxies, verify=g_verify)
-        check(resp, 200)
-        js = resp.json()
-        self.user_token = js['token'] 
-        #print "User Token:", self.user_token        
-        
-        # get my user_id (uid) within the Intel IoT Analytics Platform
-        js = self.get_user_tokeninfo()
-        self.user_id = js["payload"]["sub"]
+        try:    
+            self.proxies = proxies
+            #api_root = "/v1/api"
+            self.base_url = "https://{0}{1}".format(host, globals.api_root)
+            url = "{0}/auth/token".format(self.base_url)    
+            headers = {'content-type': 'application/json'}
+            payload = {"username": username, "password": password}
+            data = json.dumps(payload) 
+            resp = requests.post(url, data=data, headers=headers, proxies=proxies, verify=globals.g_verify)
+            check(resp, 200)
+            js = resp.json()
+            self.user_token = js['token']           
             
+            # get my user_id (uid) within the Intel IoT Analytics Platform
+            js = self.get_user_tokeninfo()
+            self.user_id = js["payload"]["sub"]
+        
+        except Exception, err:
+            # sys.stderr.write('ERROR: %s\n' % str(err))
+            # return 1
+            raise RuntimeError('XXX ERROR: %s\n' % str(err))
+        
     # given a user token, get the user_id
     def get_user_tokeninfo(self):        
         url = "{0}/auth/tokenInfo".format(self.base_url)
-        resp = requests.get(url, headers=get_user_headers(self.user_token), proxies=self.proxies, verify=g_verify)        
+        headers = {'content-type': 'application/json'}
+        resp = requests.get(url, headers=get_user_headers(self.user_token), proxies=self.proxies, verify=globals.g_verify)        
         check(resp, 200)
         js = resp.json()
-        return js    
+        return js  
 
     # Health API
     def getVersion(self):
         url = "{0}/health".format(self.base_url)
-        resp = requests.get(url, headers=get_user_headers(self.user_token), proxies=self.proxies, verify=g_verify)        
+        headers = {'content-type': 'application/json'}
+        resp = requests.get(url, headers=headers, proxies=self.proxies, verify=globals.g_verify)        
+        check(resp, 200)
+        js = resp.json()
+        return js
+        
+    # static method
+    @staticmethod
+    def getVersion(proxies=None):
+        url = "{0}/health".format(globals.base_url)
+        headers = {'content-type': 'application/json'}
+        resp = requests.get(url, headers=headers, proxies=proxies, verify=globals.g_verify)        
         check(resp, 200)
         js = resp.json()
         return js
         
     # Re-initialize to get new token (use after creating a new account)
-    def reinit(self, username, password):        
+    def reinit(self, username, password):    
+        if not username or not password:
+            raise ValueError("Invalid parameter: reinit(username, password)")    
         url = "{0}/auth/token".format(self.base_url)    
         headers = {'content-type': 'application/json'}
         payload = {"username": username, "password": password}
         data = json.dumps(payload)
-        resp = requests.post(url, data=data, headers=headers, proxies=self.proxies, verify=g_verify)
+        resp = requests.post(url, data=data, headers=headers, proxies=self.proxies, verify=globals.g_verify)
         check(resp, 200)
         js = resp.json()
         self.user_token = js['token'] 
