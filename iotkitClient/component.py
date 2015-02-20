@@ -1,4 +1,4 @@
-from globals import *
+import globals
 from utils import *
 import requests
 import uuid
@@ -14,11 +14,10 @@ class Component:
         
     def getComponent(self, component_name, cid=None):
         info = self.device.getInfo()
-        #print info
         if 'components' in info:
                 components = info["components"]                
                 for c in components:
-                    #print ">>>>", c
+                    # return first matching component
                     if c['name'] == component_name:
                         if cid != None and cid != c['cid']:
                             continue
@@ -34,9 +33,9 @@ class Component:
             "name": name,
             "type": type
         }
-        url = "{0}/accounts/{1}/devices/{2}/components".format(self.client.base_url, self.account.id, self.device.device_id)
+        url = "{0}/accounts/{1}/devices/{2}/components".format(globals.base_url, self.account.id, self.device.deviceId)
         data = json.dumps(payload)
-        resp = requests.post(url, data=data, headers=get_device_headers(self.device.device_token), proxies=self.client.proxies, verify=g_verify)
+        resp = requests.post(url, data=data, headers=get_auth_headers(self.device.device_token), proxies=self.client.proxies, verify=globals.g_verify)
         check(resp, 201)
         js = resp.json()
         self.id = cid
@@ -45,6 +44,6 @@ class Component:
         return js
         
     def deleteComponent(self, cid):        
-        url = "{0}/accounts/{1}/devices/{2}/components/{3}".format(self.client.base_url, self.account.id, self.device.device_id, cid)
-        resp = requests.delete(url, headers=get_device_headers(self.device.device_token), proxies=self.client.proxies, verify=g_verify)
+        url = "{0}/accounts/{1}/devices/{2}/components/{3}".format(globals.base_url, self.account.id, self.device.deviceId, cid)
+        resp = requests.delete(url, headers=get_auth_headers(self.device.device_token), proxies=self.client.proxies, verify=globals.g_verify)
         check(resp, 204)

@@ -1,15 +1,9 @@
 import iotkitClient
 import unittest
+from config import *
 
 # Test vars
-username = "bbaltz@yahoo.com"
-password = "Passw0rd"
-account_name = "iot99"
-hostname = "dashboard.us.enableiot.com"
-proxies = { "https": "http://proxy-us.intel.com:911" }
 badproxies = { "https": "http://xxx.intel.com:911" }
-device_id = "Junko"
-component_name = "temp"
 iot_version = "0.12.0"
 
 class TestAuthentication(unittest.TestCase):
@@ -88,5 +82,7 @@ class TestAuthentication(unittest.TestCase):
         iot = self.login() 
         self.assertRaises(RuntimeError, iot.reinit, username, "xxxxx")
         
-if __name__ == '__main__':
-    unittest.main()
+# if __name__ == '__main__':
+    # unittest.main()
+suite = unittest.TestLoader().loadTestsFromTestCase(TestAuthentication)
+#unittest.TextTestRunner(verbosity=2).run(suite)
