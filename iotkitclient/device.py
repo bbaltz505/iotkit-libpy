@@ -11,22 +11,22 @@ import time
 
 
 class Device:
-    #device_id   = None
-    # client      = None
-    # account     = None
-    # device_token = None
-    #device_name = None
+    device_id = None
+    client = None
+    account = None
+    device_token = None
+    device_name = None
 
     def __init__(self, account, id=None):
         if account:
             self.client = account.client
             self.account = account
             self.proxies = self.client.proxies
-            self.account_id = self.account_id
+            self.account_id = self.account.id
             if id:
                 self.deviceId = id
                 try:
-                    js = self.getInfo()
+                    js = self.get_info()
                 except Exception, e:
                     raise ValueError("Device ID not found: ", id)
 
@@ -40,51 +40,42 @@ class Device:
             check(resp, 201)
             js = resp.json()
             #self.device_id = js["deviceId"]
-            self.updateProperties(js)
+            update_properties(self, js)
             if activate:
-                activation_code = self.account.renewActivationCode()
+                activation_code = self.account.renew_activation_code()
                 self.activate(activation_code)
             return js
         else:
             raise ValueError("No account name given.")
 
-    def loadConfig(self, infile):
-        if os.path.isfile(infile):
-            js = open(infile)
+    def load_config(self, configFile):
+        if os.path.isfile(configFile):
+            js = open(configFile)
             data = json.load(js)
-            self.updateProperties(data)
+            update_properties(self, data)
             js.close()
             return data
         else:
-            raise ValueError("Config file not found: ", tokenFile)
+            raise ValueError("Config file not found: ", configFile)
 
-    def saveConfig(self, outfile, overWrite=False):
+    def save_config(self, configFile, overWrite=False):
         if self.deviceId:
-            data = self.getInfo()
+            data = self.get_info()
             data["device_token"] = self.device_token
             # prettyprint(data)
         else:
             raise ValueError("Unknown device - no configuration to save.")
         try:
-            if os.path.isfile(outfile) and not overWrite:
+            if os.path.isfile(configFile) and not overWrite:
                 raise RuntimeError(
-                    "Cannot overwrite existing token file:", outfile)
+                    "Cannot overwrite existing token file:", configFile)
             else:
-                with open(outfile, 'w') as outfile:
-                    json.dump(data, outfile)
+                with open(configFile, 'w') as configFile:
+                    json.dump(data, configFile)
         except:
-            raise RuntimeError("Error writing token:", outfile)
+            raise RuntimeError("Error writing token:", configFile)
 
-    def listAll(self):
-        url = "{0}/accounts/{1}/devices".format(
-            globals.base_url, self.account_id)
-        resp = requests.get(url, headers=get_auth_headers(
-            self.client.user_token), proxies=self.proxies, verify=globals.g_verify)
-        check(resp, 200)
-        js = resp.json()
-        return js
-
-    def getInfo(self, device_id=None):
+    def get_info(self, device_id=None):
         if not device_id:
             device_id = self.deviceId
         url = "{0}/accounts/{1}/devices/{2}".format(
@@ -94,10 +85,17 @@ class Device:
         check(resp, 200)
         js = resp.json()
         #self.device_id = js["deviceId"]
-        self.updateProperties(js)
+        update_properties(self, js)
         return js
 
-    def searchDevices(self, searchterms):
+    def list_all(self):
+        url = "{0}/accounts/{1}/devices".format(globals.base_url, self.account.id)
+        resp = requests.get(url, headers=get_auth_headers(self.client.user_token), proxies=self.client.proxies, verify=globals.g_verify)
+        check(resp, 200)
+        js = resp.json()
+        return js 
+        
+    def search_devices(self, searchterms):
         if searchterms:
             url = "{0}/accounts/{1}/devices?{2}".format(
                 globals.base_url, self.account_id, searchterms)
@@ -118,7 +116,7 @@ class Device:
             self.device_token), proxies=self.proxies, verify=globals.g_verify)
         check(resp, 200)
         js = resp.json()
-        self.updateProperties(js)
+        update_properties(self, js)
         return js
 
     def activate(self, activation_code):
@@ -148,7 +146,7 @@ class Device:
         else:
             raise ValueError("No active device selected.")
 
-    def listTags(self):
+    def list_tags(self):
         url = "{0}/accounts/{1}/devices/tags".format(
             globals.base_url, self.account_id)
         resp = requests.get(url, headers=get_auth_headers(
@@ -157,7 +155,7 @@ class Device:
         js = resp.json()
         return js
 
-    def listAttributes(self):
+    def list_attributes(self):
         url = "{0}/accounts/{1}/devices".format(
             globals.base_url, self.account_id)
         resp = requests.get(url, headers=get_auth_headers(
@@ -166,10 +164,10 @@ class Device:
         js = resp.json()
         return js
 
-    def sendData(self, dataSeries, cid, loc=None):
+    def send_data(self, dataSeries, cid, loc=None):
         url = "{0}/data/{1}".format(globals.base_url, self.deviceId)
 
-        series = packageDataSeries(dataSeries, cid, loc)
+        series = package_data_series(dataSeries, cid, loc)
         payload = {
             "on": time.time(),
             "accountId": self.account_id,
@@ -181,20 +179,16 @@ class Device:
         check(resp, 201)
         return resp.text
 
-    def updateProperties(self, var):
-        for key, value in var.items():
-            setattr(self, key, value)
-
 # private function
 
 
-def packageDataSeries(dataSeries, cid, loc):
+def package_data_series(dataSeries, cid, loc):
     packagedSeries = []
     for t, value in dataSeries:
         js = {
             "componentId": cid,
-            "on":          t,
-            "value":       str(value)
+            "on": t,
+            "value": str(value)
         }
         if loc:
             js["loc"] = loc

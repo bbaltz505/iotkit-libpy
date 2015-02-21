@@ -13,8 +13,8 @@ class Component:
         self.device = device
         self.id = None
 
-    def getComponent(self, component_name, cid=None):
-        info = self.device.getInfo()
+    def get_component(self, component_name, cid=None):
+        info = self.device.get_info()
         if 'components' in info:
             components = info["components"]
             for c in components:
@@ -27,7 +27,7 @@ class Component:
                     return c
         return None
 
-    def addComponent(self, name, type):
+    def add_component(self, name, type):
         cid = str(uuid.uuid4())
         payload = {
             "cid": cid,
@@ -46,7 +46,7 @@ class Component:
         self.type = type
         return js
 
-    def deleteComponent(self, cid):
+    def delete_component(self, cid):
         url = "{0}/accounts/{1}/devices/{2}/components/{3}".format(
             globals.base_url, self.account.id, self.device.deviceId, cid)
         resp = requests.delete(url, headers=get_auth_headers(

@@ -24,12 +24,12 @@ class Account:
             check(resp, 201)
             js = resp.json()
             #self.id = js["id"]
-            self.updateProperties(js)  # save account properties
+            update_properties(self, js)  # save account properties
             return js
         else:
             raise ValueError("No account name given.")
 
-    def getAccount(self, account_name, account_id=None):
+    def get_account(self, account_name, account_id=None):
         if account_name:
             # given a user_id, get the account_id of the associated account with account_name
             # if there are multiple accounts with the same name, return one of
@@ -54,13 +54,13 @@ class Account:
         else:
             raise ValueError("No account name given.")
 
-    def getInfo(self):
+    def get_info(self):
         url = "{0}/accounts/{1}".format(globals.base_url, self.id)
         resp = requests.get(url, headers=get_auth_headers(
             self.client.user_token), proxies=self.client.proxies, verify=globals.g_verify)
         check(resp, 200)
         js = resp.json()
-        self.updateProperties(js)  # save account properties
+        update_properties(self, js)  # save account properties
         return js
 
     def update(self, acct_info):
@@ -71,12 +71,12 @@ class Account:
                 self.client.user_token), proxies=self.client.proxies, verify=globals.g_verify)
             check(resp, 200)
             js = resp.json()
-            self.updateProperties(js)  # save account properties
+            update_properties(self, js)  # save account properties
             return js
         else:
             raise ValueError("Invalid account info given.")
 
-    def getActivationCode(self):
+    def get_activation_code(self):
         url = "{0}/accounts/{1}/activationcode".format(
             globals.base_url, self.id)
         resp = requests.get(url, headers=get_auth_headers(
@@ -85,7 +85,7 @@ class Account:
         js = resp.json()
         return js["activationCode"]
 
-    def renewActivationCode(self):
+    def renew_activation_code(self):
         url = "{0}/accounts/{1}/activationcode/refresh".format(
             globals.base_url, self.id)
         resp = requests.put(url, headers=get_auth_headers(
@@ -103,7 +103,7 @@ class Account:
         else:
             raise ValueError("Invalid account ID.")
 
-    def getAccountUser(self):
+    def get_account_user(self):
         url = "{0}/accounts/{1}/users".format(globals.base_url, self.id)
         resp = requests.get(url, headers=get_auth_headers(
             self.client.user_token), proxies=self.client.proxies, verify=globals.g_verify)
@@ -111,17 +111,22 @@ class Account:
         js = resp.json()
         return js
 
-    def addUser(self, user_info, user_id):
+    # def addUser(self, user_info, user_id):
 
-        url = "{0}/accounts/{1}/users/{2}".format(
-            globals.base_url, self.id, user_id)
-        data = json.dumps(payload)
-        # print url, data
-        resp = requests.put(url, data=data, headers=get_auth_headers(
-            self.client.user_token), proxies=self.client.proxies, verify=globals.g_verify)
-        check(resp, 200)
-        js = resp.json()
-        return js
+        # url = "{0}/accounts/{1}/users/{2}".format(
+        # globals.base_url, self.id, user_id)
+        # payload = {
+        # "id": user_id,
+        # "accounts": {
+        # "{accountId}": "{role}"
+        # }
+        # }
+        # data = json.dumps(payload)
+        # resp = requests.put(url, data=data, headers=get_auth_headers(
+        # self.client.user_token), proxies=self.client.proxies, verify=globals.g_verify)
+        # check(resp, 200)
+        # js = resp.json()
+        # return js
 
     def load_cert(self, file):
         token = None
@@ -131,22 +136,16 @@ class Account:
             token = data["deviceToken"]
         return token
 
-    def getData(self, time0, time1, devices, components, csv=None):
+    def get_data(self, time0, time1, devices, components, csv=None):
         url = "{0}/accounts/{1}/data/search".format(globals.base_url, self.id)
         if csv:
             url += "?output=csv"
         payload = {
             "from": time0,
-            #"to": time1,
             "targetFilter": {
                 "deviceList": devices
             },
-            "metrics": [
-                # {
-                # "id": "<component_id>",
-                # "op": "none" // currently it's the only value supported
-                # }
-            ]
+            "metrics": []
         }
         if time1:
             payload["to"] = time1
@@ -154,7 +153,6 @@ class Account:
             payload["metrics"].append({"id": c, "op": "none"})
         payload["targetFilter"]["deviceList"] = devices
         data = json.dumps(payload)
-        # print data
         resp = requests.post(url, data=data, headers=get_auth_headers(
             self.client.user_token), proxies=self.client.proxies, verify=globals.g_verify)
         check(resp, 200)
@@ -164,7 +162,7 @@ class Account:
             js = resp.json()
             return js["series"]
 
-    def advancedQuery(self, payload):
+    def advanced_query(self, payload):
         url = "{0}/accounts/{1}/data/search/advanced".format(
             globals.base_url, self.id)
 
@@ -176,7 +174,7 @@ class Account:
         js = resp.json()
         return js
 
-    def dataReport(self, payload, output=None):
+    def data_report(self, payload, output=None):
         url = "{0}/accounts/{1}/data/report".format(globals.base_url, self.id)
 
         data = json.dumps(payload)
@@ -186,7 +184,3 @@ class Account:
         check(resp, 200)
         js = resp.json()
         return js
-
-    def updateProperties(self, var):
-        for key, value in var.items():
-            setattr(self, key, value)

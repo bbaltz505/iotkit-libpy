@@ -17,7 +17,7 @@ class User:
         if js["payload"]["sub"]:
             self.id = js["payload"]["sub"]
 
-    def addUser(self, email, password, toc=True):
+    def add_user(self, email, password, toc=True):
         if email and password:
             # given a user_id, get the user's info
             # if toc:
@@ -42,7 +42,7 @@ class User:
             raise ValueError("Invalid username or password.")
         return None
 
-    def getInfo(self):
+    def get_info(self):
         # Get the user's info
         url = "{0}/users/{1}".format(globals.base_url, self.id)
         resp = requests.get(url, headers=get_auth_headers(
@@ -51,14 +51,14 @@ class User:
         js = resp.json()
         return js
 
-    def deleteUser(self, user_id):
+    def delete_user(self, user_id):
         # Get the user's info
         url = "{0}/users/{1}".format(globals.base_url, user_id)
         resp = requests.delete(url, headers=get_auth_headers(
             self.client.user_token), proxies=self.client.proxies, verify=globals.g_verify)
         check(resp, 204)
 
-    def updateUser(self, user_info):
+    def update_user(self, user_info):
         if user_info:
             # given a user_id, get the user's info
             url = "{0}/users/{1}".format(globals.base_url, self.id)
@@ -70,7 +70,7 @@ class User:
             raise ValueError("No user info given.")
         return None
 
-    def changePassword(self, username, oldpassword, newpassword):
+    def change_password(self, username, oldpassword, newpassword):
         if username and oldpassword and newpassword:
             # given a user_id, get the user's info
             url = "{0}/users/{1}/change_password".format(
@@ -87,10 +87,10 @@ class User:
             raise ValueError("No username, old or new password given.")
         return None
 
-    def findAccounts(self, account_name, firstAccountOnly=True):
+    def find_accounts(self, account_name, firstAccountOnly=True):
         accounts = []
         if account_name:
-            js = self.setUser()
+            js = self.get_info()
             if js["accounts"]:
                 for account, value in js["accounts"].items():
                     if value["name"] == account_name:

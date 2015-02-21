@@ -13,7 +13,7 @@ class Data:
         self.client = account.client
         self.account = account
 
-    # def getData(self, time0, time1, devices, components, output=None):
+    # def get_data(self, time0, time1, devices, components, output=None):
         # url = "{0}/accounts/{1}/data/search".format(self.client.base_url, self.account.id)
         # if output:
         # url += "?output=" + output

@@ -1,4 +1,4 @@
-import iotkitClient
+import iotkitclient
 import unittest
 from config import *
 import uuid
@@ -30,34 +30,34 @@ class TestDataMgmnt(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         global iot, acct, device, comp, data, t0, t1
-        iot = iotkitClient.Client(username, password, proxies)
-        acct = iotkitClient.Account(iot)
-        acct.getAccount(account_name)
-        device = iotkitClient.Device(acct)
+        iot = iotkitclient.Client(username, password, proxies)
+        acct = iotkitclient.Account(iot)
+        acct.get_account(account_name)
+        device = iotkitclient.Device(acct)
         try:
             device.delete(deviceid)
         except:
             pass
         device.create(device_info, activate=True)
-        device.saveConfig(configFile, True)
-        comp = iotkitClient.Component(device)
-        comp.addComponent(componentName, componentType)
+        device.save_config(configFile, True)
+        comp = iotkitclient.Component(device)
+        comp.add_component(componentName, componentType)
         # submit sample data
         t0 = int(time.time() * 1000)  # current time in msec
         t1 = int((time.time() + 1) * 1000)  # current time in msec
         data = [(t0, 45.0), (t1, 55.0)]
-        device.sendData(data, comp.id, loc)
+        device.send_data(data, comp.id, loc)
         time.sleep(5)
 
     def create(self, activate=False):
-        device = iotkitClient.Device(acct)
+        device = iotkitclient.Device(acct)
         js = device.create(device_info, activate=True)
         return device
 
     # def setUp(self):
 
     def test_query1(self):
-        results = acct.getData(t0, t1, [device.deviceId], [comp.id])
+        results = acct.get_data(t0, t1, [device.deviceId], [comp.id])
         self.assertTrue(results)
         print results
         # results[0] - data for device='Junko'; points[0] - 1st returned data
@@ -66,7 +66,7 @@ class TestDataMgmnt(unittest.TestCase):
         self.assertEqual(float(results[0]["points"][1]["value"]), data[1][1])
 
     def test_query2(self):
-        results = acct.getData(t0, t1, [device.deviceId], [comp.id], csv=True)
+        results = acct.get_data(t0, t1, [device.deviceId], [comp.id], csv=True)
         expected = "Device Id,Device Name,Component Id,Component Name,Component Type,Time Stamp,Value\n"
         expected += "%s,%s,%s,%s,%s,%s,%s\n" % (device.deviceId, device.name, comp.id, componentName, componentType,
                                                 data[0][0], data[0][1])
@@ -77,10 +77,10 @@ class TestDataMgmnt(unittest.TestCase):
     def test_advquery1(self):
         query = {
             "deviceIds": [device.deviceId],
-            "from":  t0,
-            "to":  t1,
+            "from": t0,
+            "to": t1,
         }
-        results = acct.advancedQuery(query)
+        results = acct.advanced_query(query)
         self.assertEqual(results["accountId"], acct.id)
         self.assertEqual(
             float(results["data"][0]["components"][0]["samples"][0][1]), data[0][1])
@@ -110,8 +110,8 @@ class TestDataMgmnt(unittest.TestCase):
             }
         }
         print t0, t1, data
-        iotkitClient.prettyprint(report)
-        js = acct.dataReport(report)
+        iotkitclient.prettyprint(report)
+        js = acct.data_report(report)
         # print js
-        iotkitClient.prettyprint(js)
+        iotkitclient.prettyprint(js)
         self.assertTrue(js)

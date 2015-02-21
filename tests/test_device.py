@@ -1,4 +1,4 @@
-import iotkitClient
+import iotkitclient
 import unittest
 from config import *
 
@@ -26,44 +26,50 @@ class TestDeviceMgmnt(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         global iot, acct
-        iot = iotkitClient.Client(username, password, proxies)
-        acct = iotkitClient.Account(iot)
-        acct.getAccount(account_name)
+        iot = iotkitclient.Client(username, password, proxies)
+        acct = iotkitclient.Account(iot)
+        acct.get_account(account_name)
+        while True:
+            try:
+                device = iotkitclient.Device(acct, deviceid)
+                print "Deleting ", deviceid
+                device.delete()
+            except:
+                break
 
     def create(self, activate=False):
-        device = iotkitClient.Device(acct)
+        device = iotkitclient.Device(acct)
         js = device.create(info, activate)
         # if activate:
-        # code = acct.renewActivationCode()
+        # code = acct.renew_activation_code()
         # device.activate(code)
         return device
 
-    # def delete(self):
-        # device = iotkitClient.Device(acct)
-        # js = device.delete()
+    def delete(self, name):
+        device = iotkitclient.Device(acct, name)
+        js = device.delete()
 
     def setUp(self):
-        # try:
-        device = iotkitClient.Device(acct, deviceid)
-        device.delete()
-        # except:
-        # pass
+        try:
+            self.delete(deviceid)
+        except:
+            pass
 
     def bulkcreate(self):
         for i in (range(4)):
-            device = iotkitClient.Device(acct)
+            device = iotkitclient.Device(acct)
             info["deviceId"] = deviceid + str(i)
             js = device.create(info)
 
     def bulkdelete(self):
         for i in (range(4)):
-            device = iotkitClient.Device(acct)
+            device = iotkitclient.Device(acct)
             name = deviceid + str(i)
             js = device.delete()
 
     # Connection tests
     def test_create_device(self):
-        device = iotkitClient.Device(acct)
+        device = iotkitclient.Device(acct)
         info = {
             "deviceId": deviceid,
             "gatewayId": deviceid,
@@ -80,9 +86,9 @@ class TestDeviceMgmnt(unittest.TestCase):
         self.assertEqual(js["deviceId"], deviceid)
         self.assertEqual(js["status"], "created")
 
-    def test_listAll_devices(self):
+    def test_list_all_devices(self):
         device = self.create()
-        devlist = device.listAll()
+        devlist = device.list_all()
         self.assertTrue(devlist)
 
     def test_delete_device(self):
@@ -95,41 +101,41 @@ class TestDeviceMgmnt(unittest.TestCase):
         # except:
         # pass
         # self.bulkcreate()
-        # code = acct.renewActivationCode()
+        # code = acct.renew_activation_code()
         # self.assertTrue(code)
-        # device = iotkitClient.Device(acct, deviceid + "1")
+        # device = iotkitclient.Device(acct, deviceid + "1")
         # device.activate(code)  # activate Junko1
-        # device = iotkitClient.Device(acct, deviceid + "2")
+        # device = iotkitclient.Device(acct, deviceid + "2")
         # device.activate(code)  # activate Junko2
         # search = "status=created&sort=name&order=desc"
         # js = device.searchDevices(search)
-        # iotkitClient.prettyprint(js)
+        # iotkitclient.prettyprint(js)
         # self.assertTrue(len(js), 2) # check for 2 returned devices
         # self.assertEqual(js[0]["deviceId"], "Junko2")
         # self.assertEqual(js[1]["deviceId"], "Junko1") # check for descending order
         # self.bulkdelete()
 
-    def test_addComponent(self):
+    def test_add_component(self):
         device = self.create(activate=True)
-        comp = iotkitClient.Component(device)
-        comp.addComponent(componentName, componentType)
+        comp = iotkitclient.Component(device)
+        comp.add_component(componentName, componentType)
         self.assertTrue(comp.id)
 
     def test_deleteComponent(self):
         device = self.create(activate=True)
-        comp = iotkitClient.Component(device)
-        comp.addComponent(componentName, componentType)
+        comp = iotkitclient.Component(device)
+        comp.add_component(componentName, componentType)
         self.assertTrue(comp.id)
-        comp.deleteComponent(comp.id)
+        comp.delete_component(comp.id)
 
     def test_config(self):
         device = self.create(activate=True)
-        comp = iotkitClient.Component(device)
-        comp.addComponent(componentName, componentType)
-        device.saveConfig("foo.json", True)
-        info = device.loadConfig("foo.json")
-        iotkitClient.prettyprint(info)
+        comp = iotkitclient.Component(device)
+        comp.add_component(componentName, componentType)
+        device.save_config("foo.json", True)
+        info = device.load_config("foo.json")
+        #iotkitclient.prettyprint(info)
         for key, value in info.items():
-            print "%s = %s = %s" % (key, str(value), str(getattr(device, key)))
+            #print "%s = %s = %s" % (key, str(value), str(getattr(device, key)))
             self.assertEqual(value, getattr(device, key))
         pass

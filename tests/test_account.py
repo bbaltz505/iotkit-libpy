@@ -1,4 +1,4 @@
-import iotkitClient
+import iotkitclient
 import unittest
 from config import *
 
@@ -13,22 +13,22 @@ class TestAccountMgmt(unittest.TestCase):
     # create an account
 
     def create(self, name):
-        # acct = iotkitClient.Account(iot)
+        # acct = iotkitclient.Account(iot)
         # acct.create(name)
         # return acct
         return self.get(name)
 
     # get account info
     def get(self, name):
-        acct = iotkitClient.Account(iot)
-        id = acct.getAccount(name)
+        acct = iotkitclient.Account(iot)
+        id = acct.get_account(name)
         return acct
 
     # delete an account
     @classmethod
     def delete(cls, name):
         global acct
-        acct.getAccount(name)
+        acct.get_account(name)
         if acct.id:
             print "Found ", newaccount, acct.id, "deleting..."
             acct.delete(acct.id)
@@ -47,8 +47,8 @@ class TestAccountMgmt(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         global iot, acct
-        iot = iotkitClient.Client(username, password, proxies)
-        acct = iotkitClient.Account(iot)
+        iot = iotkitclient.Client(username, password, proxies)
+        acct = iotkitclient.Account(iot)
         cls.deleteAll(newaccount)
         acct.create(newaccount)
         iot.reinit(username, password)
@@ -56,14 +56,14 @@ class TestAccountMgmt(unittest.TestCase):
     ########################################
     # Connection tests
     def test_get(self):
-        acct2 = iotkitClient.Account(iot)
-        acct2.getAccount(newaccount)
+        acct2 = iotkitclient.Account(iot)
+        acct2.get_account(newaccount)
         self.assertEqual(acct.id, acct2.id)
 
     # Connection tests
-    def test_getinfo(self):
+    def test_get_info(self):
         iot.reinit(username, password)
-        info = acct.getInfo()
+        info = acct.get_info()
         self.assertEqual(newaccount, info["name"])
 
     # Connection tests
@@ -75,16 +75,16 @@ class TestAccountMgmt(unittest.TestCase):
             "cd_execution_frequency": cd_execution_frequency
         }
         acct.update(newinfo)
-        info = acct.getInfo()
+        info = acct.get_info()
         self.assertEqual(
             cd_execution_frequency, info["cd_execution_frequency"])
 
     def test_activation_code(self):
-        code = acct.getActivationCode()
+        code = acct.get_activation_code()
         self.assertTrue(code)
 
     def test_renew_activation_code(self):
-        code1 = acct.getActivationCode()
-        code2 = acct.renewActivationCode()
+        code1 = acct.get_activation_code()
+        code2 = acct.renew_activation_code()
         self.assertTrue(code2)
         self.assertNotEqual(code1, code2)

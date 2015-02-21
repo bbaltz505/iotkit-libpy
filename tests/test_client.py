@@ -1,49 +1,49 @@
-import iotkitClient
+import iotkitclient
 import unittest
 from config import *
 
 # Test vars
 badproxies = {"https": "http://xxx.intel.com:911"}
-iot_version = "0.12.0"
+iot_version = "0.12.2"
 
 
 class TestAuthentication(unittest.TestCase):
 
     def login(self):
-        return iotkitClient.Client(hostname, username, password, proxies)
+        return iotkitclient.Client(username, password, proxies)
 
     # Connection tests
     def test_connect(self):
         iot = self.login()
         self.assertTrue(iot.user_token)
 
-    def test_connect_bad_host1(self):
-        self.assertRaises(RuntimeError, iotkitClient.Client,
-                          "foo.com", username, password, proxies)
+    # def test_connect_bad_host1(self):
+        # self.assertRaises(RuntimeError, iotkitclient.Client,
+                          # "foo.com", username, password, proxies)
 
-    def test_connect_bad_host2(self):
-        self.assertRaises(ValueError, iotkitClient.Client,
-                          None, username, password, proxies)
+    # def test_connect_bad_host2(self):
+        # self.assertRaises(ValueError, iotkitclient.Client,
+                          # None, username, password, proxies)
 
     def test_connect_bad_username1(self):
-        self.assertRaises(RuntimeError, iotkitClient.Client,
-                          hostname, "foo@boo.com", password, proxies)
+        self.assertRaises(RuntimeError, iotkitclient.Client,
+                          "foo@boo.com", password, proxies)
 
     def test_connect_bad_username2(self):
-        self.assertRaises(ValueError, iotkitClient.Client,
-                          hostname, None, password, proxies)
+        self.assertRaises(ValueError, iotkitclient.Client,
+                          None, password, proxies)
 
     def test_connect_bad_password1(self):
-        self.assertRaises(ValueError, iotkitClient.Client,
-                          hostname, username, None, proxies)
+        self.assertRaises(ValueError, iotkitclient.Client,
+                          username, None, proxies)
 
     def test_connect_bad_password2(self):
-        self.assertRaises(RuntimeError, iotkitClient.Client,
-                          hostname, username, "xxx", proxies)
+        self.assertRaises(RuntimeError, iotkitclient.Client,
+                          username, "xxx", proxies)
 
     def test_connect_bad_proxy(self):
-        self.assertRaises(RuntimeError, iotkitClient.Client,
-                          hostname, username, password, badproxies)
+        self.assertRaises(RuntimeError, iotkitclient.Client,
+                          username, password, badproxies)
 
     # # GetUserTokenInfo tests
     def test_get_user_tokeninfo1(self):
@@ -52,13 +52,9 @@ class TestAuthentication(unittest.TestCase):
         self.assertTrue(utoken["payload"])
 
     # Health API
-    def test_getVersion1(self):
+    def test_getVersion(self):
         iot = self.login()
-        version = iot.getVersion()
-        self.assertEqual(iot_version, version["build"])
-
-    def test_getVersion2(self):
-        version = iotkitClient.Client.getVersion(proxies)
+        version = iot.get_version()
         self.assertEqual(iot_version, version["build"])
 
     # Re-initialize to get new token (use after creating a new account)
@@ -84,7 +80,3 @@ class TestAuthentication(unittest.TestCase):
         iot = self.login()
         self.assertRaises(RuntimeError, iot.reinit, username, "xxxxx")
 
-# if __name__ == '__main__':
-    # unittest.main()
-suite = unittest.TestLoader().loadTestsFromTestCase(TestAuthentication)
-# unittest.TextTestRunner(verbosity=2).run(suite)
