@@ -362,12 +362,11 @@ class Account:
             request and response message formats
             https://github.com/enableiot/iotkit-api/wiki/Advanced-Data-Inquiry
             
-        """
+        """     
         url = "{0}/accounts/{1}/data/search/advanced".format(
             globals.base_url, self.id)
 
         data = json.dumps(payload)
-        # print url, data
         resp = requests.post(url, data=data, headers=get_auth_headers(
             self.client.user_token), proxies=self.client.proxies, verify=globals.g_verify)
         check(resp, 200)

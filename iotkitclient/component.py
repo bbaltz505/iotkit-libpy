@@ -1,5 +1,3 @@
-import globals
-from utils import *
 # Copyright (c) 2015, Intel Corporation
 #
 # Redistribution and use in source and binary forms, with or without modification,
@@ -25,10 +23,11 @@ from utils import *
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+import globals
+from utils import *
 import requests
 import uuid
 import json
-
 
 class Component:
 

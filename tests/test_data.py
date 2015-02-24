@@ -30,9 +30,15 @@ class TestDataMgmnt(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         global iot, acct, device, comp, data, t0, t1
-        iot = iotkitclient.Client(username, password, proxies)
+        iot = iotkitclient.Client(host=hostname, proxies=proxies)
+        iot.login(username, password)
         acct = iotkitclient.Account(iot)
-        acct.get_account(account_name)
+        try:
+            acct.get_account(account_name)
+        except:
+            acct.create(account_name)
+            iot.reinit(username, password)
+            
         device = iotkitclient.Device(acct)
         try:
             device.delete(deviceid)
@@ -46,7 +52,8 @@ class TestDataMgmnt(unittest.TestCase):
         t0 = int(time.time() * 1000)  # current time in msec
         t1 = int((time.time() + 1) * 1000)  # current time in msec
         data = [(t0, 45.0), (t1, 55.0)]
-        device.send_data(data, comp.id, loc)
+        
+        device.send_data(device.package_data_series(data, comp.id, loc))
         time.sleep(5)
 
     def create(self, activate=False):

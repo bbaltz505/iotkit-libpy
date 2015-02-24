@@ -37,7 +37,6 @@ class TestDeviceMgmnt(unittest.TestCase):
                 device.delete()
             except:
                 break
-        acct.create(account_name)
         
     def create(self, activate=False):
         device = iotkitclient.Device(acct)

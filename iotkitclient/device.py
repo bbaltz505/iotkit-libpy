@@ -133,7 +133,7 @@ class Device:
             globals.base_url, self.account_id, device_id)
         data = json.dumps(device_info)
         resp = requests.put(url, data=data, headers=get_auth_headers(
-            self.device_token), proxies=self.proxies, verify=globals.g_verify)
+            self.client.user_token), proxies=self.proxies, verify=globals.g_verify)
         check(resp, 200)
         js = resp.json()
         update_properties(self, js)
@@ -198,7 +198,7 @@ class Device:
 
         """
         url = "{0}/accounts/{1}/devices".format(
-            globals.base_url, self.id)
+            globals.base_url, self.account_id)
         resp = requests.get(url, headers=get_auth_headers(
             self.client.user_token), proxies=self.client.proxies, verify=globals.g_verify)
         check(resp, 200)
@@ -223,14 +223,12 @@ class Device:
         js = resp.json()
         return js
 
-    def send_data(self, dataSeries, cid, loc=None):
+    def send_data(self, dataSeries):
         url = "{0}/data/{1}".format(globals.base_url, self.deviceId)
-
-        series = _package_data_series(dataSeries, cid, loc)
         payload = {
             "on": time.time(),
             "accountId": self.account_id,
-            "data": series
+            "data": dataSeries
         }
         data = json.dumps(payload)
         resp = requests.post(url, data=data, headers=get_auth_headers(
@@ -238,19 +236,16 @@ class Device:
         check(resp, 201)
         return resp.text
 
-# private function
+    def package_data_series(self, dataSeries, cid, loc=None):
+        packagedSeries = []
+        for timestamp, value in dataSeries:
+            js = {
+                "componentId": cid,
+                "on": timestamp,
+                "value": str(value)
+            }
+            if loc:
+                js["loc"] = loc
 
-
-def _package_data_series(dataSeries, cid, loc):
-    packagedSeries = []
-    for timestamp, value in dataSeries:
-        js = {
-            "componentId": cid,
-            "on": timestamp,
-            "value": str(value)
-        }
-        if loc:
-            js["loc"] = loc
-
-        packagedSeries.append(js)
-    return packagedSeries
+            packagedSeries.append(js)
+        return packagedSeries
