@@ -26,7 +26,7 @@
 username = "bbaltz@yahoo.com"
 password = "Passw0rd"
 hostname = "dashboard.us.enableiot.com"
-proxies = {"https": "http://proxy-us.intel.com:911"}
+proxies = None
 
 account_name = "newacct"
 
