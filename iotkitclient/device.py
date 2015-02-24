@@ -1,5 +1,30 @@
+# Copyright (c) 2015, Intel Corporation
+#
+# Redistribution and use in source and binary forms, with or without modification,
+# are permitted provided that the following conditions are met:
+#
+#    * Redistributions of source code must retain the above copyright notice,
+#      this list of conditions and the following disclaimer.
+#    * Redistributions in binary form must reproduce the above copyright notice,
+#      this list of conditions and the following disclaimer in the documentation
+#      and/or other materials provided with the distribution.
+#    * Neither the name of Intel Corporation nor the names of its contributors
+#      may be used to endorse or promote products derived from this software
+#      without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+# ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
+# ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
+# ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+# SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
 """@package Device
-Methods for IoT Analytics device management
+Methods for IoT Analytics device management and data submission
 """
 import globals
 from utils import *
@@ -16,6 +41,7 @@ class Device:
     account = None
     device_token = None
     device_name = None
+    name = None
 
     def __init__(self, account, id=None):
         if account:
@@ -87,24 +113,18 @@ class Device:
         #self.device_id = js["deviceId"]
         update_properties(self, js)
         return js
-
-    def list_all(self):
-        url = "{0}/accounts/{1}/devices".format(globals.base_url, self.account.id)
-        resp = requests.get(url, headers=get_auth_headers(self.client.user_token), proxies=self.client.proxies, verify=globals.g_verify)
-        check(resp, 200)
-        js = resp.json()
-        return js 
         
-    def search_devices(self, searchterms):
-        if searchterms:
-            url = "{0}/accounts/{1}/devices?{2}".format(
-                globals.base_url, self.account_id, searchterms)
-            resp = requests.get(url, headers=get_auth_headers(
-                self.client.user_token), proxies=self.proxies, verify=globals.g_verify)
-            check(resp, 200)
-            js = resp.json()
-            return js
-        return None
+    # --- Not functional ----
+    # def search_devices(self, searchterms):
+        # if searchterms:
+            # url = "{0}/accounts/{1}/devices?{2}".format(
+                # globals.base_url, self.account_id, searchterms)
+            # resp = requests.get(url, headers=get_auth_headers(
+                # self.client.user_token), proxies=self.proxies, verify=globals.g_verify)
+            # check(resp, 200)
+            # js = resp.json()
+            # return js
+        # return None
 
     def update(self, device_info, device_id=None):
         if not device_id:
@@ -146,6 +166,45 @@ class Device:
         else:
             raise ValueError("No active device selected.")
 
+    def list_account_devices(self):
+        """ List all users associated with this account
+
+            Returns:
+            A list of device-attribute JSON messages
+            Example,
+                [
+                    {
+                        "attributes": {
+                            "agent_version": "1.5.1",
+                            "hardware_vendor": "Genuine Intel(R) CPU   4000  @  500MHz",
+                            "hardware_model": "linux",
+                            "Model Name": "ia32",
+                            "Firmware Version": "3.10.17-poky-edison+"
+                        },
+                        "created": 1424713173378,
+                        "components": [
+                            {
+                                "name": "temp",
+                                "type": "temperature.v1.0",
+                                "cid": "f4f942c1-7d6f-4771-bbd4-9cfa9717ba5a"
+                            }
+                        ],
+                        "deviceId": "jumbo-edison",
+                        "gatewayId": "jumbo-edison",
+                        "name": "jumbo-edison-NAME",
+                        "status": "active"
+                    }
+                ]
+
+        """
+        url = "{0}/accounts/{1}/devices".format(
+            globals.base_url, self.id)
+        resp = requests.get(url, headers=get_auth_headers(
+            self.client.user_token), proxies=self.client.proxies, verify=globals.g_verify)
+        check(resp, 200)
+        js = resp.json()
+        return js
+        
     def list_tags(self):
         url = "{0}/accounts/{1}/devices/tags".format(
             globals.base_url, self.account_id)
@@ -167,7 +226,7 @@ class Device:
     def send_data(self, dataSeries, cid, loc=None):
         url = "{0}/data/{1}".format(globals.base_url, self.deviceId)
 
-        series = package_data_series(dataSeries, cid, loc)
+        series = _package_data_series(dataSeries, cid, loc)
         payload = {
             "on": time.time(),
             "accountId": self.account_id,
@@ -182,12 +241,12 @@ class Device:
 # private function
 
 
-def package_data_series(dataSeries, cid, loc):
+def _package_data_series(dataSeries, cid, loc):
     packagedSeries = []
-    for t, value in dataSeries:
+    for timestamp, value in dataSeries:
         js = {
             "componentId": cid,
-            "on": t,
+            "on": timestamp,
             "value": str(value)
         }
         if loc:

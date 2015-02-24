@@ -47,7 +47,8 @@ class TestAccountMgmt(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         global iot, acct
-        iot = iotkitclient.Client(username, password, proxies)
+        iot = iotkitclient.Client(host=hostname, proxies=proxies)
+        iot.login(username, password)
         acct = iotkitclient.Account(iot)
         cls.deleteAll(newaccount)
         acct.create(newaccount)

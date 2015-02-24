@@ -26,7 +26,8 @@ class TestDeviceMgmnt(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         global iot, acct
-        iot = iotkitclient.Client(username, password, proxies)
+        iot = iotkitclient.Client(host=hostname, proxies=proxies)
+        iot.login(username, password)        
         acct = iotkitclient.Account(iot)
         acct.get_account(account_name)
         while True:
@@ -36,7 +37,8 @@ class TestDeviceMgmnt(unittest.TestCase):
                 device.delete()
             except:
                 break
-
+        acct.create(account_name)
+        
     def create(self, activate=False):
         device = iotkitclient.Device(acct)
         js = device.create(info, activate)
@@ -87,8 +89,8 @@ class TestDeviceMgmnt(unittest.TestCase):
         self.assertEqual(js["status"], "created")
 
     def test_list_all_devices(self):
-        device = self.create()
-        devlist = device.list_all()
+        device = iotkitclient.Device(acct)
+        devlist = device.list_account_devices()
         self.assertTrue(devlist)
 
     def test_delete_device(self):
