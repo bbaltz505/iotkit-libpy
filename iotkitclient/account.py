@@ -397,3 +397,67 @@ class Account:
         check(resp, 200)
         js = resp.json()
         return js
+
+    def list_alerts(self):
+        url = "{0}/accounts/{1}/alerts".format(
+            self.client.base_url, self.id)
+        resp = requests.get(url, headers=get_auth_headers(
+            self.client.user_token), proxies=self.client.proxies, verify=globals.g_verify)
+        check(resp, 200)
+        js = resp.json()
+        return js
+        
+    # Rules ---------------------------
+    def add_rule(self, rule_info):
+        """ Add new rule
+        
+            Args:
+            rule_info (dict): Dictionary containing Rule information parameters
+            
+            (see https://github.com/enableiot/iotkit-api/wiki/Rule-Management)
+            
+            E.g.,
+            {
+              "name": "Test Rule",
+              "description": "This is a test rule",
+              "priority": "Medium",
+              "type": "Regular",
+              "status": "Active",
+              "resetType": "Automatic",
+              "actions": [
+                {
+                  "type": "mail",
+                  "target": [
+                    "test@example.com"
+                  ]
+                }
+              ],
+              "population": {
+                "ids": [ "685.1.1.1" ],
+                "attributes": null
+              },
+              "conditions": {
+                "operator": "OR",
+                "values": [
+                  {
+                    "component": {
+                      "dataType": "Number",
+                      "name": "Temp.01.1"
+                    },
+                    "type": "basic",
+                    "values": [ "25" ],
+                    "operator": ">"
+                  }
+                ]
+              }
+            }
+
+        """
+        url = "{0}/accounts/{1}/rules".format(
+                globals.base_url, self.account_id)
+        data = json.dumps(rule_info)
+        resp = requests.post(url, data=data, headers=get_auth_headers(
+            self.client.user_token), proxies=self.proxies, verify=globals.g_verify)
+        check(resp, 201)
+        js = resp.json()
+        

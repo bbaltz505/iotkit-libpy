@@ -32,7 +32,6 @@ import globals
 import json
 import requests
 
-
 class Client:
 
     """ IoT Analytics Cloud connection class
