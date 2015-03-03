@@ -30,24 +30,85 @@ import uuid
 import json
 
 class Rule:
+    rule_id = None
 
     def __init__(self, acct):
         self.client = acct.client
         self.account = acct
 
-    def list_rules(self):
+    def get_rules(self):
         """ Get list of rules for this account """
-    def create_draft_rule(self, rule_info):
+        url = "{0}/accounts/{1}/rules".format(
+            self.client.base_url, self.account.id)
+        resp = requests.get(url, headers=get_auth_headers(
+            self.client.user_token), proxies=self.client.proxies, verify=globals.g_verify)
+        check(resp, 200)
+        js = resp.json()
+        return js
+        
+    def find_rule(self, rule_name):
         """ Create a rule as a draft """
+        js = self.list_rules()
+        for row in js:
+            print row["name"]
+            if row["name"] == rule_name:
+                prettyprint(row)
+                return row["externalId"]
+        
+    def add_draft_rule(self, rule_info):
+        """ Create a rule as a draft """
+        if rule_info:
+            url = "{0}/accounts/{1}/rules/draft".format(
+                self.client.base_url, self.account.id)
+            data = json.dumps(rule_info)
+            resp = requests.put(url, data=data, headers=get_auth_headers(
+                self.client.user_token), proxies=self.client.proxies, verify=globals.g_verify)
+            check(resp, 200)
+            js = resp.json()
+        else:
+            raise ValueError("No rule information provided.")
     def delete_draft_rule(self, rule_id):
         """ Delete a draft rule """
     def get_rule(self, rule_id):
         """ Get single rule """
-    def create_rule(self):
+    def add_rule(self, rule_info):
         """ Create a rule """
-    def update_rule(self):
+        if rule_info:
+            url = "{0}/accounts/{1}/rules".format(
+                self.client.base_url, self.account.id)
+            data = json.dumps(rule_info)
+            resp = requests.post(url, data=data, headers=get_auth_headers(
+                self.client.user_token), proxies=self.client.proxies, verify=globals.g_verify)
+            check(resp, 201)
+            js = resp.json()
+        else:
+            raise ValueError("No rule information provided.")
+            
+    def update_rule(self, rule_info):
         """ Update a rule """
-    def update_rule_status(self):
+        if rule_info:
+            url = "{0}/accounts/{1}/rules/{2}".format(
+                self.client.base_url, self.account.id, self.rule_id)
+            data = json.dumps(rule_info)
+            resp = requests.put(url, data=data, headers=get_auth_headers(
+                self.client.user_token), proxies=self.client.proxies, verify=globals.g_verify)
+            check(resp, 200)
+            js = resp.json()
+        else:
+            raise ValueError("No rule information provided.")
+            
+    def update_rule_status(self, rule_status):
         """ Update a rule status """
+        if rule_status:
+            url = "{0}/accounts/{1}/rules/{2}/status".format(
+                self.client.base_url, self.account.id, self.rule_id)
+            payload = { "status": rule_status }
+            data = json.dumps(payload)
+            resp = requests.put(url, data=data, headers=get_auth_headers(
+                self.client.user_token), proxies=self.client.proxies, verify=globals.g_verify)
+            check(resp, 200)
+            js = resp.json()
+        else:
+            raise ValueError("No rule information provided.")
 
 

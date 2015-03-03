@@ -23,11 +23,12 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-from client import Client
+from connect import Connect
 from device import Device
 from account import Account
 from user import User
 from data import Data
+from rule import Rule
 from component import Component
 from utils import prettyprint, update_properties
 import json

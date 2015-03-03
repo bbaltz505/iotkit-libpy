@@ -23,12 +23,9 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-username = "bbaltz@yahoo.com"
-password = "Passw0rd"
-hostname = "dashboard.us.enableiot.com"
-proxies = {"https": "http://proxy-us.intel.com:911"}
-
-account_name = "newacct"
-
-component_name = "temp"
-component_type = "temperature.v1.0"
+import authenticate
+import account
+import device
+import submit_data
+import query_data
+import delete_all

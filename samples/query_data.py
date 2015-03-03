@@ -29,7 +29,7 @@ import config
 import time
 
 # Connect to IoT Analytics site and authenticate
-iot = iotkitclient.Client(host=config.hostname, proxies=config.proxies)
+iot = iotkitclient.Connect(host=config.hostname, proxies=config.proxies)
 iot.login(config.username, config.password)
 
 # Create IoT Analytics account instance
@@ -49,11 +49,11 @@ t0 = 0
 t1 = None
 devices = [device_id]
 components = [comp.id]
-data = acct.get_data(t0, t1, devices, components, csv=False)
+data = acct.search_data(t0, t1, devices, components, csv=False)
 print "\nSimple query..."
 iotkitclient.prettyprint(data)
 
-data = acct.get_data(t0, t1, devices, components, csv=True)
+data = acct.search_data(t0, t1, devices, components, csv=True)
 print "\nSimple query (CSV format)..."
 iotkitclient.prettyprint(data)
 
@@ -95,7 +95,7 @@ filters = {
             "componentRowLimit" :  1,
             "sort" : [{"Timestamp" : "Desc"}]
         }
-data = acct.advanced_query(filters)
+data = acct.advanced_data_query(filters)
 iotkitclient.prettyprint(data)
 
 

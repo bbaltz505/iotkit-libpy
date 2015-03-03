@@ -67,7 +67,7 @@ class User:
             raise ValueError("Invalid username or password.")
         return None
 
-    def get_info(self):
+    def get_user_info(self):
         # Get the user's info
         url = "{0}/users/{1}".format(globals.base_url, self.id)
         resp = requests.get(url, headers=get_auth_headers(
@@ -126,3 +126,15 @@ class User:
         if firstAccountOnly:
             return accounts[0]
         return accounts
+        
+    def change_password(self):
+        pass
+        
+    def update_user_role(self):
+        pass
+        
+    def reset_password(self):
+        pass
+        
+    def request_password_reset(self):
+        pass

@@ -29,7 +29,7 @@ import config
 import time
 
 # Connect to IoT Analytics site and authenticate
-iot = iotkitclient.Client(host=config.hostname, proxies=config.proxies)
+iot = iotkitclient.Connect(host=config.hostname, proxies=config.proxies)
 iot.login(config.username, config.password)
 
 # Create IoT Analytics account instance
@@ -46,7 +46,7 @@ device_id = iot.user_id + "_01"
 
 try:
     # Check if device exists
-    device.get_info(device_id)
+    device.get_device(device_id)
 except:
     # Define required device info parameters
     device_info = {
@@ -55,23 +55,25 @@ except:
                     "name": "Device #1"
                   }
     # Create device
-    device.create(device_info)
+    print "Creating new device:", device_id
+    device.create_device(device_info)
     # Obtain activation code
     act_code = acct.renew_activation_code()
     # Activate device
-    device.activate(act_code)
+    device.activate_new_device(act_code)
     # Save device token to file **DO NOT LOSE THIS TOKEN**
+    print "Writing device token to device.json..."
     device.save_config("device.json", True)
     
 print "Device Info:"
-iotkitclient.prettyprint(device.get_info())
+iotkitclient.prettyprint(device.get_device())
 
 print "Update Device Info:"
 device_info = {
                 "name": "Just changed my name"
               }
-device.update(device_info, device_id)
-iotkitclient.prettyprint(device.get_info())
+device.update_device(device_info, device_id)
+iotkitclient.prettyprint(device.get_device())
 
 
     

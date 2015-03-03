@@ -26,10 +26,9 @@
 
 import iotkitclient
 import config
-import time
 
 # Connect to IoT Analytics site and authenticate
-iot = iotkitclient.Client(host=config.hostname, proxies=config.proxies)
+iot = iotkitclient.Connect(host=config.hostname, proxies=config.proxies)
 iot.login(config.username, config.password)
 
 # Create IoT Analytics account instance
@@ -38,18 +37,15 @@ try:
     # check if account exists
     acct.get_account(config.account_name)
     print "Using existing account \"%s\" (%s)." % (config.account_name, acct.id)
-except:    
-    acct.create(config.account_name)
+except Exception, ex:
+    acct.create_account(config.account_name)
     print "Creating new account \"%s\" (%s)." % (config.account_name, acct.id)
     iot.reinit(config.username, config.password)
-    
+
 print "Account info:"
-iotkitclient.prettyprint(acct.get_info())   
+iotkitclient.prettyprint(acct.get_info())
 
 print "Account users:"
 iotkitclient.prettyprint(acct.list_account_users())
 
 print "Generate a device activation code: %s" % acct.renew_activation_code()
-    
-    
-    

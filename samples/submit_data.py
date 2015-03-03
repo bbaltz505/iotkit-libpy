@@ -30,7 +30,7 @@ import time
 
 # Connect to IoT Analytics site and authenticate
 print "Connecting to %s ..." % config.hostname
-iot = iotkitclient.Client(host=config.hostname, proxies=config.proxies)
+iot = iotkitclient.Connect(host=config.hostname, proxies=config.proxies)
 iot.login(config.username, config.password)
 print "Connected. User ID: %s ..." % iot.user_id
 
@@ -39,7 +39,7 @@ acct = iotkitclient.Account(iot)
 try:
     acct.get_account(config.account_name)
 except:
-    acct.create(config.account_name)
+    acct.create_account(config.account_name)
     iot.reinit(config.username, config.password)
 print "Using Account: %s ..." % config.account_name
 
@@ -47,16 +47,16 @@ print "Using Account: %s ..." % config.account_name
 device = iotkitclient.Device(acct)
 device_id = iot.user_id + "_01"
 try:
-    device.get_info(device_id)
+    device.get_device(device_id)
 except:    
     device_info = {
                     "deviceId": device_id, 
                     "gatewayId": device_id,
                     "name": "Device #1"
                   }
-    device.create(device_info)
+    device.create_device(device_info)
     act_code = acct.renew_activation_code()
-    device.activate(act_code)
+    device.activate_new_device(act_code)
     device.save_config("device.json", True)
 
 device.load_config("device.json")
@@ -64,8 +64,8 @@ print "Using Device: %s ..." % device_id
 
 comp = iotkitclient.Component(device)
 try:
-    comp.get_component(confg.component_name)
-    comp.delete(comp.id)
+    comp.get_component(config.component_name)
+    #comp.delete_component(comp.id)
 except:
     comp.add_component(config.component_name, config.component_type)
     

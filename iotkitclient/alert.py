@@ -35,7 +35,8 @@ class Alert:
         self.client = acct.client
         self.account = acct
 
-    def list_alerts(self):
+    #Get alerts for an account
+    def get_alerts(self):
         url = "{0}/accounts/{1}/alerts".format(
             globals.base_url, self.account.id)
         resp = requests.get(url, headers=get_auth_headers(
@@ -43,10 +44,20 @@ class Alert:
         check(resp, 200)
         js = resp.json()
         return js
-    Get alerts for an account
-    Get alert information - for a specific alert
-    Create a new alert
-    Reset alert
-    Update alert status
-    Add comments to an alert
+        
+    #Get alert information - for a specific alert
+    def get_alert(self):
+        pass
+    # Create a new alert
+    def add_alert(self):
+        pass
+    # Reset alert
+    def reset_alert(self):
+        pass
+    # Update alert status
+    def update_alert_status(self):
+        pass
+    # Add comments to an alert
+    def add_alert_comment(self):
+        pass
 

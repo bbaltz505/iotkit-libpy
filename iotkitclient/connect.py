@@ -32,7 +32,7 @@ import globals
 import json
 import requests
 
-class Client:
+class Connect:
 
     """ IoT Analytics Cloud connection class
 
@@ -41,7 +41,7 @@ class Client:
       user_token (str): access token from IoT Analytics site connection
       user_id (str): user ID for authenticated user
     """
-    proxies = ''
+    proxies = None
     user_token = ''
     user_id = ''
     base_url = globals.base_url

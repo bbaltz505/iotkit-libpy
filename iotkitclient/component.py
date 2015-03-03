@@ -38,7 +38,7 @@ class Component:
         self.id = None
 
     def get_component(self, component_name, cid=None):
-        info = self.device.get_info()
+        info = self.device.get_device()
         if 'components' in info:
             components = info["components"]
             for c in components:
@@ -59,7 +59,7 @@ class Component:
             "type": type
         }
         url = "{0}/accounts/{1}/devices/{2}/components".format(
-            globals.base_url, self.account.id, self.device.deviceId)
+            globals.base_url, self.account.id, self.device.device_id)
         data = json.dumps(payload)
         resp = requests.post(url, data=data, headers=get_auth_headers(
             self.device.device_token), proxies=self.client.proxies, verify=globals.g_verify)
@@ -72,7 +72,7 @@ class Component:
 
     def delete_component(self, cid):
         url = "{0}/accounts/{1}/devices/{2}/components/{3}".format(
-            globals.base_url, self.account.id, self.device.deviceId, cid)
+            globals.base_url, self.account.id, self.device.device_id, cid)
         resp = requests.delete(url, headers=get_auth_headers(
             self.device.device_token), proxies=self.client.proxies, verify=globals.g_verify)
         check(resp, 204)

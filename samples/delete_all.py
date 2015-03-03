@@ -29,7 +29,7 @@ import config
 import time
 
 # Connect to IoT Analytics site and authenticate
-iot = iotkitclient.Client(host=config.hostname, proxies=config.proxies)
+iot = iotkitclient.Connect(host=config.hostname, proxies=config.proxies)
 iot.login(config.username, config.password)
 
 # Link to a specific IoT Analytics account
@@ -41,7 +41,7 @@ try:
     device = iotkitclient.Device(acct)
     device_id = iot.user_id + "_01"
     try:
-        device.get_info(device_id)
+        device.get_device(device_id)
         
         # Delete all components named "temp" on this device
         comp = iotkitclient.Component(device)
@@ -49,20 +49,20 @@ try:
             try:
                 comp.get_component(config.component_name)
                 print "Deleting component \"%s\" (%s)" % (config.component_name, comp.id)
-                comp.delete(comp.id)
+                comp.delete_component(comp.id)
             except:
                 break 
 
         # Delete device
         print "Deleting device \"%s\"" % device_id
-        device.delete(device_id)
+        device.delete_device(device_id)
         
     except:        
         print "Cannot find device: %s ..." % device_id
         
     # Delete account
     print "Deleting account \"%s\" (%s)" % (config.account_name, acct.id)
-    acct.delete(acct.id)
+    acct.delete_account(acct.id)
     pass
 except:
     print "Cannot find account: %s ..." % config.account_name

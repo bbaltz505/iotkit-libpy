@@ -42,11 +42,12 @@ class Account:
     """
     id = None
     client = None
+    info = None
 
     def __init__(self, client):
         self.client = client
 
-    def create(self, account_name):
+    def create_account(self, account_name):
         """ Create a new account.
 
             Args:
@@ -79,7 +80,8 @@ class Account:
             check(resp, 201)
             js = resp.json()
             self.id = js["id"]
-            update_properties(self, js)  # save account properties
+            #update_properties(self, js)  # save account properties
+            self.info = js
             return js
         else:
             raise ValueError("No account name given.")
@@ -155,10 +157,11 @@ class Account:
             self.client.user_token), proxies=self.client.proxies, verify=globals.g_verify)
         check(resp, 200)
         js = resp.json()
-        update_properties(self, js)  # save account properties
+        #update_properties(self, js)  # save account properties
+        self.info = js
         return js
 
-    def update(self, acct_info):
+    def update_account(self, acct_info):
         """ Update account attributes for current account instance
 
             Args:
@@ -175,7 +178,8 @@ class Account:
                 self.client.user_token), proxies=self.client.proxies, verify=globals.g_verify)
             check(resp, 200)
             js = resp.json()
-            update_properties(self, js)  # save account properties
+            #update_properties(self, js)  # save account properties
+            self.info = js
             return js
         else:
             raise ValueError("Invalid account info given.")
@@ -221,7 +225,7 @@ class Account:
         js = resp.json()
         return js["activationCode"]
 
-    def delete(self, account_id):
+    def delete_account(self, account_id):
         """ Delete account with given account ID
 
             Args:
@@ -278,7 +282,7 @@ class Account:
             token = data["deviceToken"]
         return token
 
-    def get_data(self, time0, time1, devices, components, csv=None):
+    def search_data(self, time0, time1, devices, components, csv=None):
         """ Retrieve data for a list of devices and components in a
             given time period.
 
@@ -348,7 +352,7 @@ class Account:
             js = resp.json()
             return js["series"]
 
-    def advanced_query(self, payload):
+    def advanced_data_query(self, payload):
         """ Advanced data query supports multiple filters and sorting options
         
             Args:
@@ -373,7 +377,7 @@ class Account:
         js = resp.json()
         return js
 
-    def data_report(self, payload):
+    def aggregated_report(self, payload):
         """ Return aggregated data report
         
             Args:
@@ -398,66 +402,4 @@ class Account:
         js = resp.json()
         return js
 
-    def list_alerts(self):
-        url = "{0}/accounts/{1}/alerts".format(
-            self.client.base_url, self.id)
-        resp = requests.get(url, headers=get_auth_headers(
-            self.client.user_token), proxies=self.client.proxies, verify=globals.g_verify)
-        check(resp, 200)
-        js = resp.json()
-        return js
-        
-    # Rules ---------------------------
-    def add_rule(self, rule_info):
-        """ Add new rule
-        
-            Args:
-            rule_info (dict): Dictionary containing Rule information parameters
-            
-            (see https://github.com/enableiot/iotkit-api/wiki/Rule-Management)
-            
-            E.g.,
-            {
-              "name": "Test Rule",
-              "description": "This is a test rule",
-              "priority": "Medium",
-              "type": "Regular",
-              "status": "Active",
-              "resetType": "Automatic",
-              "actions": [
-                {
-                  "type": "mail",
-                  "target": [
-                    "test@example.com"
-                  ]
-                }
-              ],
-              "population": {
-                "ids": [ "685.1.1.1" ],
-                "attributes": null
-              },
-              "conditions": {
-                "operator": "OR",
-                "values": [
-                  {
-                    "component": {
-                      "dataType": "Number",
-                      "name": "Temp.01.1"
-                    },
-                    "type": "basic",
-                    "values": [ "25" ],
-                    "operator": ">"
-                  }
-                ]
-              }
-            }
-
-        """
-        url = "{0}/accounts/{1}/rules".format(
-                globals.base_url, self.account_id)
-        data = json.dumps(rule_info)
-        resp = requests.post(url, data=data, headers=get_auth_headers(
-            self.client.user_token), proxies=self.proxies, verify=globals.g_verify)
-        check(resp, 201)
-        js = resp.json()
-        
+    
